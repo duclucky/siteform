@@ -18,6 +18,9 @@ class SourcePackage(unittest.TestCase):
             self.assertEqual(descriptor,{'name':'siteform','api':'plugin_api.py'})
             self.assertIn('siteform/dashboard/'+descriptor['api'],release.namelist())
             self.assertIn('siteform/siteform_core/api.py',release.namelist())
+            self.assertIn('siteform/examples/create_example.py',release.namelist())
+            self.assertIn('siteform/tests/requirements.txt',release.namelist())
+            self.assertIn('siteform/tests/test_review_fixes.py',release.namelist())
             self.assertFalse(any('node_modules' in name or 'plugin-data' in name for name in release.namelist()))
 
 if __name__=='__main__':

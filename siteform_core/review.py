@@ -15,8 +15,8 @@ class Limits(BaseModel):
     max_height_m: Annotated[FiniteFloat, Field(gt=0, le=1000)] | None = None
     max_footprint_m2: Annotated[FiniteFloat, Field(gt=0)] | None = None
     max_volume_m3: Annotated[FiniteFloat, Field(gt=0)] | None = None
-    min_clearance_m: Annotated[FiniteFloat, Field(gt=0, le=1000)] | None = None
-    min_setback_m: Annotated[FiniteFloat, Field(gt=0, le=1000)] | None = None
+    min_clearance_m: Annotated[FiniteFloat, Field(ge=0, le=1000)] | None = None
+    min_setback_m: Annotated[FiniteFloat, Field(ge=0, le=1000)] | None = None
     max_coverage_pct: Annotated[FiniteFloat, Field(gt=0, le=100)] | None = None
     max_far: Annotated[FiniteFloat, Field(gt=0, le=1000)] | None = None
 
@@ -37,7 +37,7 @@ def building_index(scene):
 
 def building_changes(left_scene, right_scene):
     left, right = building_index(left_scene), building_index(right_scene)
-    fields = (("height","height_m"), ("footprint","area_m2"), ("volume","volume_m3"), ("roof","roof"))
+    fields = (("height","height_m"), ("footprint","area_m2"), ("volume","volume_m3"), ("roof","roof"), ("program","program"))
     same_scale = left_scene["metres_per_pdf_point"] == right_scene["metres_per_pdf_point"]
     changes = []
     for key in dict.fromkeys([*left, *right]):
@@ -58,6 +58,9 @@ def building_changes(left_scene, right_scene):
                 "left_code": before.get("code"), "right_code": after.get("code"),
                 "status": "changed" if before and after else ("added" if after else "removed"),
                 "changed": changed,
+                "left_program": before.get("program"), "right_program": after.get("program"),
+                "floor_count_delta": (after["program"]["floors"] - before["program"]["floors"]
+                                      if before.get("program") and after.get("program") else None),
                 "height_delta_m": round(after.get("height_m", 0) - before.get("height_m", 0), 4),
                 "footprint_delta_m2": round(after.get("area_m2", 0) - before.get("area_m2", 0), 4),
                 "volume_delta_m3": round(after.get("volume_m3", 0) - before.get("volume_m3", 0), 4),
@@ -67,6 +70,21 @@ def building_changes(left_scene, right_scene):
                     right_position["dx_m"]-left_position["dx_m"],
                     right_position["dy_m"]-left_position["dy_m"]),4)
     return changes
+
+
+def site_comparison(left, right):
+    rows = {}
+    for key in ("parcel_area_m2", "union_footprint_m2", "covered_in_parcel_m2",
+                "coverage_pct", "gross_floor_area_m2", "far"):
+        before = (left.get("site_metrics") or {}).get(key)
+        after = (right.get("site_metrics") or {}).get(key)
+        known = before is not None and after is not None
+        status = ("unchanged" if before == after else "changed") if known else (
+            "unknown" if before is None and after is None else
+            "became_known" if before is None else "became_unknown")
+        rows[key] = {"left":before, "right":after, "status":status,
+                     "delta":round(after-before, 6 if key == "far" else 4) if known else None}
+    return {"parcel_changed":left["draft"].get("site") != right["draft"].get("site"), "metrics":rows}
 
 
 def review_model(data, limits):

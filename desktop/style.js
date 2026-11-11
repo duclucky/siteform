@@ -22,6 +22,11 @@ export const css = `
 .sf-review summary{width:fit-content;cursor:pointer;font-weight:650;margin-bottom:6px}
 .sf-review-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(155px,100%),1fr));gap:8px;margin:8px 0}
 .sf-review-fields label{min-width:0}
+.sf-removal{border:1px solid #c56843;background:var(--sf-card);margin-top:12px}
+.sf-removal form{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:12px 0}
+.sf-removal label{display:flex;flex-direction:column;gap:6px;min-width:min(280px,100%)}
+.sf-removal button[type=submit]{background:#9e371b;color:#fff;border-color:#9e371b}
+.sf-library-row{border-top:1px solid var(--sf-line);padding:10px 0}
 .sf-findings{display:grid;gap:5px;margin:8px 0;padding-left:20px}
 .sf-findings button{margin-left:6px}
 .sf-plan-ruler{margin-bottom:8px}.sf-plan-ruler output{font-variant-numeric:tabular-nums}

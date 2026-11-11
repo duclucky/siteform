@@ -23,20 +23,43 @@ const findingLabels = {
 
 export function BuildingChanges({changes, onInspect}) {
   const moved = changes.some(item => item.displacement_m !== undefined);
+  const program = changes.some(item => item.changed.includes('program'));
+  const describe = value => value ? `${value.floors} floors × ${number.format(value.floor_height_m)} m · ${value.use || 'Use unspecified'}` : 'Unknown';
   return <details className="sf-review">
     <summary>Building changes ({changes.length})</summary>
-    {changes.length === 0 ? <p>No changes to building geometry or form.</p> :
+    {changes.length === 0 ? <p>No changes to building geometry, form or program.</p> :
       <div className="sf-table"><table aria-label="Building changes">
         <thead><tr><th scope="col">Building</th><th scope="col">Changed</th><th scope="col">Δ Height (m)</th>
-          <th scope="col">Δ Footprint (m²)</th><th scope="col">Δ Volume (m³)</th>{moved && <th scope="col">Movement (m)</th>}</tr></thead>
+          <th scope="col">Δ Footprint (m²)</th><th scope="col">Δ Volume (m³)</th>{program && <th scope="col">Floor program · before → after</th>}{moved && <th scope="col">Movement (m)</th>}</tr></thead>
         <tbody>{changes.map(row => <tr key={row.code}>
           <th scope="row"><button type="button" onClick={() => onInspect(row)}>{row.code}</button></th>
           <td>{row.status === 'changed' ? row.changed.join(', ') : row.status}</td>
           <td>{row.status === 'changed' ? delta.format(row.height_delta_m) : '—'}</td>
           <td>{delta.format(row.footprint_delta_m2)}</td><td>{delta.format(row.volume_delta_m3)}</td>
+          {program && <td>{row.changed.includes('program') ? describe(row.left_program)+' → '+describe(row.right_program) : 'Unchanged'}</td>}
           {moved && <td>{number.format(row.displacement_m ?? 0)}</td>}
         </tr>)}</tbody>
       </table></div>}
+  </details>;
+}
+
+export function SiteChanges({comparison}) {
+  if (!comparison?.site_comparison) return null;
+  const labels = {parcel_area_m2:'Parcel area (m²)',union_footprint_m2:'Union footprint (m²)',
+    covered_in_parcel_m2:'Footprint in parcel (m²)',coverage_pct:'Parcel coverage (%)',
+    gross_floor_area_m2:'Estimated gross floor area (m²)',far:'Floor area ratio'};
+  const precise = new Intl.NumberFormat(undefined,{maximumFractionDigits:6});
+  const signed = new Intl.NumberFormat(undefined,{maximumFractionDigits:6,signDisplay:'exceptZero'});
+  const format = value => value == null ? 'Unknown' : precise.format(value);
+  return <details className="sf-review"><summary>Parcel and floor comparison</summary>
+    <p>{comparison.site_comparison.parcel_changed ? 'Parcel definition changed.' : 'Parcel definition unchanged.'}</p>
+    <div className="sf-table"><table aria-label="Parcel and floor comparison"><thead><tr>
+      <th>Metric</th><th>{comparison.left.name}</th><th>{comparison.right.name}</th><th>Change</th>
+    </tr></thead><tbody>{Object.entries(comparison.site_comparison.metrics).map(([key,row]) => <tr key={key}>
+      <th scope="row">{labels[key]}</th><td>{format(row.left)}</td><td>{format(row.right)}</td>
+      <td>{row.delta == null ? row.status.replaceAll('_',' ') : signed.format(row.delta)}</td>
+    </tr>)}</tbody></table></div>
+    <p className="sf-caption">Floor area is footprint × confirmed floor count. Unknown values have no numeric difference.</p>
   </details>;
 }
 
@@ -91,7 +114,7 @@ export function ModelReview({ctx, model, initialReport=null, initialError='', on
     <p className="sf-caption">Leave unused limits blank. SiteForm always checks printed footprint areas.</p>
     <form onSubmit={run} aria-label="Concept limits">
       <div className="sf-review-fields">{fields.map(([key,label,max]) =>
-        <label key={key}>{label}<input type="number" step="any" min="0" max={max} disabled={busy}
+        <label key={key}>{label}<input type="number" step="any" min={key.startsWith('min_') ? 0 : 0.000001} max={max} disabled={busy}
           value={inputs[key] ?? ''} onChange={event => {
             const value = event.target.value;
             setInputs(current => ({...current,[key]:value}));

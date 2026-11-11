@@ -6,6 +6,8 @@ import {Massing} from './scene.jsx';
 import {ModelReview} from './review.jsx';
 import {StudyView} from './study.jsx';
 import {PositionExplorer} from './positions.jsx';
+import {RemovalDialog} from './library.jsx';
+import {SiteChanges} from './review.jsx';
 
 const number = new Intl.NumberFormat(undefined,{maximumFractionDigits:2});
 
@@ -23,6 +25,7 @@ export function Options({ctx, endpoint, working, sheet, onCopy, handoff=null}) {
   const [study,setStudy] = useState(null);
   const [opening,setOpening] = useState(Boolean(handoff));
   const [handoffError,setHandoffError] = useState('');
+  const [removing,setRemoving] = useState(null);
   const panel = useRef(null);
   const preview = useRef(null);
   useEffect(() => {
@@ -132,14 +135,25 @@ export function Options({ctx, endpoint, working, sheet, onCopy, handoff=null}) {
       </div>
       <div className="sf-table"><table aria-label="Option comparison">
         <thead><tr><th>Model</th><th>Buildings</th><th>Footprint (m²)</th><th>Highest point (m)</th>
-          <th>Volume (m³)</th><th>Illustrative roofs</th><th>Area flags</th></tr></thead>
+          <th>Volume (m³)</th><th>Illustrative roofs</th><th>Area flags</th><th>Manage</th></tr></thead>
         <tbody>{entries.map(({id,name,metrics,origin}) => <tr key={id} className={displayId === id ? 'sf-picked' : undefined}>
           <th>{name}{origin === "hermes_tool" && <span className="sf-viewing"> · Hermes tool</span>}{displayId === id && <span className="sf-viewing"> · Viewing</span>}</th>
           <td>{metrics.building_count}</td><td>{number.format(metrics.footprint_m2)}</td>
           <td>{number.format(metrics.max_height_m)}</td><td>{number.format(metrics.volume_m3)}</td>
           <td>{metrics.illustrative_roofs}</td><td>{metrics.area_flags}</td>
+          <td>{id !== 'working' && <button disabled={busy || Boolean(removing)} onClick={() => setRemoving(id)}>Remove option: {name}</button>}</td>
         </tr>)}</tbody>
       </table></div>
+      {removing && <RemovalDialog key={removing} ctx={ctx} kind="options" id={removing}
+        onCancel={() => setRemoving(null)} onRemoved={result => {
+          setItems(current => current.filter(item => item.id !== result.removed));
+          if (view?.id === result.removed) {setView(null);setFocus(null);}
+          setRemoving(null);setMessage('Removed '+result.name+'.');
+        }}/>}
+      {view && <>
+        <SiteChanges comparison={{left:{name:view.name},right:{name:'Working model'},
+          site_comparison:compareSites(view.scene,working)}}/>
+      </>}
       <p className="sf-caption">Footprints and volumes are summed per building. Options preserve a saved snapshot. Options created in chat appear here after refresh. Export uses the model you are viewing.</p>
       {message && <p role="status">{message}</p>}
       {error && <p role="alert" className="sf-flag">{error}</p>}
@@ -169,4 +183,14 @@ export function Options({ctx, endpoint, working, sheet, onCopy, handoff=null}) {
       <StudyView key={study.id} ctx={ctx} path={'/height-studies/'+study.id} study={study}/>
     </div>}
   </>;
+}
+
+function compareSites(left,right) {
+  const keys = ['parcel_area_m2','union_footprint_m2','covered_in_parcel_m2','coverage_pct','gross_floor_area_m2','far'];
+  return {parcel_changed:JSON.stringify(left.draft.site) !== JSON.stringify(right.draft.site),
+    metrics:Object.fromEntries(keys.map(key => {
+      const a = left.site_metrics?.[key] ?? null, b = right.site_metrics?.[key] ?? null;
+      return [key,{left:a,right:b,delta:a != null && b != null ? b-a : null,
+        status:a == null && b == null ? 'unknown' : a == null ? 'became_known' : b == null ? 'became_unknown' : a === b ? 'unchanged' : 'changed'}];
+    }))};
 }

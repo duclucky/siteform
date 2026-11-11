@@ -1,0 +1,2 @@
+# Preserve reviewed bytes across Git checkouts; source hashes include line endings.
+* -text

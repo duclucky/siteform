@@ -5,7 +5,7 @@ import {host, TRANSCRIPT_DIRECTIVE_AREA, useValue} from '@hermes/plugin-sdk';
 import {Massing} from './scene.jsx';
 import {css} from './style.js';
 import {exportScene} from './export.js';
-import {BuildingChanges, ModelReview} from './review.jsx';
+import {BuildingChanges, ModelReview, SiteChanges} from './review.jsx';
 import {StudyView} from './study.jsx';
 import {QuantityReview} from './quantities.jsx';
 import {PositionStudy} from './positions.jsx';
@@ -188,6 +188,7 @@ function ChatModelView({ctx, view, visible, sessionId, ownsSession}) {
           </table>
         </div>
         <p className="sf-caption">Change is the second option minus the first. Values describe concept massing.</p>
+        <SiteChanges comparison={comparison}/>
         <BuildingChanges changes={comparison.building_changes ?? []} onInspect={row => {
           const index = row.right_code ? 1 : 0;
           setSelected(index);

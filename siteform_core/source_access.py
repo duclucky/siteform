@@ -17,6 +17,7 @@ REQUIRED = (
     "desktop/package.json", "desktop/package-lock.json", "desktop/vendor/three/LICENSE",
     "desktop/vendor/three/src/Three.js", "siteform_core/api.py",
     "dashboard/manifest.json", "dashboard/plugin_api.py",
+    "examples/create_example.py", "tests/README.md", "tests/requirements.txt",
 )
 ROOT_FILES = {"LICENSE", "NOTICE", "README.md", "SOURCE_BUILD.md", "THIRD_PARTY_NOTICES.md",
               "plugin.yaml", "__init__.py"}
@@ -33,6 +34,8 @@ def _selected(name):
         return name.suffix == ".py" or (len(parts) == 2 and name.name == "manifest.json")
     if parts[0] == "siteform_core":
         return name.suffix == ".py"
+    if parts[0] in {"tests", "examples"}:
+        return name.suffix in {".py", ".md", ".txt", ".json", ".mjs"}
     if parts[0] == "desktop":
         if parts[1] == "vendor":
             return name.suffix == ".js" or name.name in {"LICENSE", "UPSTREAM.json"}
@@ -59,7 +62,7 @@ def source_files():
             if path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction()):
                 raise ValueError("Source packaging does not follow links.")
             if path.is_dir():
-                if name.parts[0] in {"siteform_core", "dashboard", "desktop", "skills", "tessdata", "LICENSES"}:
+                if name.parts[0] in {"siteform_core", "dashboard", "desktop", "skills", "tessdata", "LICENSES", "tests", "examples"}:
                     walk(path)
                 continue
             if not _selected(name):

@@ -1,4 +1,4 @@
-# SiteForm 0.14.1
+# SiteForm 0.15.0
 
 SiteForm turns a reviewed planning PDF into an inspectable 3D concept model inside Hermes Desktop. It keeps the original drawing, measured geometry, and assumptions together.
 
@@ -24,12 +24,17 @@ roof assumptions require confirmation; this is not automatic BIM reconstruction.
 ## Quick start
 
 Use Hermes **0.22.7 or later** with its managed Python dependencies available.
-Before catalog acceptance, install directly from this public repository. For a
-repeatable installation, use the full commit SHA shown in the catalog PR:
+Before catalog acceptance, install directly from this public repository:
 
 ```sh
-hermes plugins install https://github.com/duclucky/siteform --ref <full-40-character-commit-sha>
+hermes plugins install https://github.com/duclucky/siteform
 ```
+
+For a repeatable install, add `--ref` followed by the exact 40-character source
+commit in [catalog PR #153658](https://github.com/NousResearch/hermes-agent/pull/153658).
+Install by catalog name only after acceptance.
+
+Watch the [working demo on X](https://x.com/0xDucky1st/status/2120566068213391590).
 
 Enable SiteForm's Agent tools and its Desktop surface under
 **Capabilities → Plugins → SiteForm**. Restart the gateway when Hermes requests
@@ -39,6 +44,64 @@ review and deterministic geometry also work without a model call.
 Import your own PDF, mark a known ruler distance, confirm building outlines and
 heights, then build and save a named option. Ask Hermes to open that option or
 explore a specified roof/height alternative. A new library starts empty.
+
+## Try it with an empty library
+
+The repository includes an original synthetic drawing generator; it needs only
+Python's standard library and does not download a third-party plan. From the
+repository (or extracted source ZIP), run:
+
+```sh
+python examples/create_example.py --output-dir .test-cache/first-use
+```
+
+Use a new output directory each time; existing directories are refused. Open
+`.test-cache/first-use/chat-prompt.txt`, copy the entire prompt into Hermes and
+send it. It contains the absolute PDF path and the exact confirmed draft JSON.
+The agent imports the PDF, creates the first working model and displays the
+interactive 3D card. The configured Hermes model handles the tool calls; no
+separate SiteForm API key is required.
+
+This is explicitly synthetic concept data: two buildings, footprint sum
+4,150 m², volume 44,550 m³, parcel 14,400 m² and estimated GFA 10,700 m².
+Floor area is footprint × confirmed floor count, not a measured floor schedule.
+If the inline card is unavailable in your Desktop version, open **SiteForm**,
+select **siteform-example.pdf**, sheet 1, and view the same working model.
+
+In Studio, save **Example baseline** using **Save working model as option**.
+Then try this independent follow-up in chat:
+
+> Use siteform_roof_study on siteform-example.pdf, page 1, with the saved
+> Example baseline as the base. Save A roof study. Change only building A to an
+> illustrative gable roof with 2 m rise and a 90° ridge direction. Keep its
+> highest point and footprint. Report the measured volume change and show the
+> saved interactive model and baseline comparison.
+
+The Sanyou examples below describe the demo project; its third-party PDF is not
+bundled. They require importing that source and saving the named baseline first.
+The generated example above is sufficient to try the core workflow from scratch.
+
+## Library quotas and safe removal
+
+Open **Manage library and storage** in Studio to see PDF use (120 MiB per
+profile), total saved options (100 per profile) and the 16-option limit per sheet.
+Use **Remove option** in the option table or **Remove PDF project** in the library.
+SiteForm previews the affected records and checks references before allowing an
+exact-name confirmation. Download a project ZIP before removal if you need a backup.
+
+An option cannot be removed while another saved/working model or study references
+it. Archived studies also retain their baseline. Removing a PDF removes its own
+models, options, studies, quantity history and Studio drafts; other supporting
+PDFs stay in the library. A supporting PDF cannot be removed while another
+project's quantity history references it, including superseded review snapshots.
+If the library changes after preview, review and confirm a new preview.
+Removal frees quota; SQLite may reuse free pages without shrinking its file.
+
+Comparisons include floor program changes (count, floor height and use), parcel
+changes, estimated GFA, coverage and FAR. Unknown metrics remain unknown and have
+no numeric difference. Zero minimum clearance/setback is accepted; maximum limits
+must be positive. Zero separation does not establish that overlapping buildings
+are acceptable for a real project.
 
 ## Drawing workflow
 
@@ -232,3 +295,9 @@ Original SiteForm code is **AGPL-3.0-only**. See [LICENSE](LICENSE), [NOTICE](NO
 The studio and inline chat cards include **Download source & licenses**, which
 offers the installed source and build materials without user project data.
 Third-party components retain their own licenses.
+
+## Verification
+
+See [portable test instructions](tests/README.md). Windows CI runs the real local
+storage/REST/geometry/archive suites, rebuilds the preferred Desktop source and
+checks its committed bundle and source inventory. It needs no provider key.

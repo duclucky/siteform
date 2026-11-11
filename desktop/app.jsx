@@ -9,6 +9,7 @@ import {registerChatModel} from './chat-model.jsx';
 import {SourceAccess} from './source-access.jsx';
 import {CalibrationPreview, RulerDetail} from './ruler-detail.jsx';
 import {QuantityReview} from './quantities.jsx';
+import {LibraryManager} from './library.jsx';
 import {clearHandoff, readHandoff, returnToChat, subscribeHandoff, validHandoff} from './navigation.js';
 
 const emptyScale = {points:[], metres:''};
@@ -580,6 +581,15 @@ function Library({ctx, scope}) {
       </div>}
       {notice && <p role="status">{notice}</p>}
     </section>
+    <LibraryManager ctx={ctx} refreshKey={library} onRemoved={result => {
+      setLibrary(items => items.filter(item => item.id !== result.removed));
+      if (handoff?.document === result.removed) dismissHandoff();
+      for (let sheet=1; sheet <= (library.find(item => item.id === result.removed)?.pages ?? 0); sheet++) {
+        try {ctx.storage?.remove('draft:'+scope+':'+result.removed+'/'+sheet);} catch { /* Deleted PDFs cannot recover a draft. */ }
+      }
+      if (id === result.removed) {setId('');setPage(1);}
+      setNotice('Removed '+result.name+' and its listed project records.');
+    }}/>
     {document && <details className="sf-quantity-section">
       <summary>Review project quantities and supporting documents</summary>
       <QuantityReview key={'quantities:'+id+'/'+page} ctx={ctx} documentId={id} page={page} library={library}/>

@@ -8,7 +8,7 @@ from fastapi.concurrency import run_in_threadpool
 from pydantic import ValidationError
 from starlette.datastructures import UploadFile
 
-from . import archive, delivery, dossier, intake, service, spatial, source_access
+from . import archive, delivery, dossier, intake, service, spatial, source_access, library
 
 router = APIRouter()
 StudyId = Annotated[str, Path(pattern=r"^[0-9a-f]{32}$")]
@@ -28,6 +28,21 @@ async def run(operation, *args):
 @router.get("/documents")
 async def list_documents():
     return await run(service.documents)
+
+
+@router.get("/library")
+async def library_usage():
+    return await run(library.usage)
+
+
+@router.get("/library/{kind}/{identifier}/removal")
+async def removal_preview(kind: str, identifier: str):
+    return await run(library.preview, kind, identifier)
+
+
+@router.delete("/library/{kind}/{identifier}")
+async def remove_library_item(kind: str, identifier: str, payload: library.Confirmation):
+    return await run(library.remove, kind, identifier, payload)
 
 
 @router.post("/source/archive")

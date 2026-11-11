@@ -21,7 +21,7 @@ from typing import Annotated, Literal
 
 from .geometry import candidates, is_convex, signed_area, simple_ring
 from .intake import LabelEvidence
-from .review import Limits, building_changes, review_model
+from .review import Limits, building_changes, review_model, site_comparison
 from .roof import volume
 from .semantics import Parcel, Program, Ring, Translation, courtyard_area, project_metrics, project_outline, translate_ring
 from .study import ALGORITHM, StudyInput, evaluate, normalize_axes
@@ -827,11 +827,12 @@ def compare(document_id, page, left, right):
 
 def comparison_metrics(left_ref, left_data, right_ref, right_data):
     return {
-        "left": {"id": left_ref["id"], "name": left_ref["name"], "metrics": left_data["metrics"]},
-        "right": {"id": right_ref["id"], "name": right_ref["name"], "metrics": right_data["metrics"]},
+        "left": {"id": left_ref["id"], "name": left_ref["name"], "metrics": left_data["metrics"], "site_metrics":left_data.get("site_metrics")},
+        "right": {"id": right_ref["id"], "name": right_ref["name"], "metrics": right_data["metrics"], "site_metrics":right_data.get("site_metrics")},
         "right_minus_left": {key: round(value - left_data["metrics"][key], 4)
                              for key, value in right_data["metrics"].items()},
         "building_changes": building_changes(left_data, right_data),
+        "site_comparison": site_comparison(left_data, right_data),
         "scope": "Concept metrics. Footprint and enclosed volume sum individual buildings. Roof evidence may be illustrative.",
     }
 
