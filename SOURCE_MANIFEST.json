@@ -471,7 +471,7 @@
     "tests/test_example.py": "b32947593c81fce9dfbb9ece8b4a77660ec0df015ced9e55be40598547c4ee31",
     "tests/test_integration.py": "d7aec22c4187c4d17b381302c74eeef57ea0161ee705a43c195db08e80ecdaad",
     "tests/test_review_fixes.py": "5d3b85d67f09a3f16a2531ee8cd4b6d2caefb94018f730291821b5e8c5086231",
-    "tests/test_source_offer.py": "d9ae4d90283013ff345687675b9bfb73db1f6e2a790096470ee612b62297dd52",
+    "tests/test_source_offer.py": "d49407296d073d76a4f51e16a95c7c2f597fed8aaa615c8221fb6a81b0102df7",
     "tests/test_source_package.py": "8f23b7c93b169b96f953fd27bbdf895bdd92360fd0b97e09c3f31286509dc8e7",
     "tests/verify_siteform.py": "e7fd3354154eddc3e51a4dca1cc605cfd230d579875ed7d80cd306cf5f97a703",
     "tests/verify_siteform_options.py": "929d2ac4ae2662dc981b79db8fb30092b7507b180af2f7cb53f962099fb71ce9",

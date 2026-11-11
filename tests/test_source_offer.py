@@ -89,7 +89,10 @@ class SourceOfferTests(unittest.TestCase):
                 result = client.post("/source/archive")
                 self.assertEqual(result.status_code, 200, result.text)
                 target = Path(result.json()["path"])
-                self.assertTrue(target.is_relative_to(Path(folder)))
+                # Windows runners may expose TEMP through an 8.3 alias; compare
+                # canonical paths on both sides of the profile boundary.
+                self.assertTrue(target.is_relative_to(Path(folder).resolve()))
+                self.assertEqual(target.parent, Path(folder).resolve()/"plugin-data/siteform/downloads")
                 with ZipFile(target) as archive:
                     self.assertIn("siteform/LICENSE", archive.namelist())
                 with patch.object(source_access, "MAX_BYTES", 1):
