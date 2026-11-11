@@ -1,0 +1,25 @@
+SiteForm
+Copyright (c) 2026 SiteForm contributors
+
+Original SiteForm code in this directory is licensed under the GNU Affero
+General Public License, version 3 only (SPDX-License-Identifier: AGPL-3.0-only).
+The complete license is in LICENSE. This release adds the source offer and
+explicit licensing to SiteForm 0.13.0. It is distributed without warranty.
+
+Third-party components retain their own copyrights and licenses. In particular,
+desktop/vendor/three contains unmodified Three.js 0.180.0 preferred-source
+modules under MIT. tessdata contains Apache-2.0 Tesseract language data.
+See THIRD_PARTY_NOTICES.md, LICENSES and the corresponding component notices.
+
+Hermes and React are provided by the host. Runtime Python dependencies are
+installed separately by Hermes, not included as wheel binaries in this plugin.
+PyMuPDF/MuPDF has AGPL/commercial terms; PyMuPDF wrapper source also carries
+GPL-3.0-only notices. Those notices are retained, not replaced by this notice.
+
+The source-download control in the studio and chat cards offers the installed
+SiteForm source, build scripts, selected Three.js source and license texts.
+Redistributors and operators of modified network versions must satisfy the
+applicable license terms, including providing corresponding source where required.
+No user drawings, library database, provider configuration or credentials are
+part of this source offer. This notice does not change the separate WorldLab
+MIT license in the parent application directory.

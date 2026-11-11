@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.env
+.env.*
+auth.json
+*.sqlite3*
+*.db*
+.cache/
+.test-cache/
+node_modules/
+desktop/node_modules/
+*.pdf
+*.mp4
+*.wav
+*.mp3

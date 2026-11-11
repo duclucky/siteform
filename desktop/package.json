@@ -1,0 +1,12 @@
+{
+  "name": "siteform-desktop",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  },
+  "license": "AGPL-3.0-only"
+}

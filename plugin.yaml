@@ -1,0 +1,36 @@
+name: siteform
+version: 0.14.0
+description: Review planning PDFs and source-linked project quantities, compare 3D options in Hermes chat, and export revision-linked reports and project archives.
+author: SiteForm contributors
+requires_hermes: ">=0.22.7"
+python_dependencies:
+  - "PyMuPDF==1.26.7"
+  - "fastapi>=0.115,<1"
+  - "python-multipart>=0.0.22,<1"
+  - "shapely==2.1.2"
+  - "numpy>=1.21,<3"
+provides_tools:
+  - siteform_position_studies
+  - siteform_position_study
+  - siteform_save_position_option
+  - siteform_project_review
+  - siteform_confirm_facts
+  - siteform_height_study
+  - siteform_save_study_option
+  - siteform_check
+  - siteform_revise_option
+  - siteform_view_options
+  - siteform_roof_study
+  - siteform_import_pdf
+  - siteform_documents
+  - siteform_review_pdf
+  - siteform_intake
+  - siteform_detect
+  - siteform_scene
+  - siteform_options
+  - siteform_create
+  - siteform_propose
+  - siteform_compare
+provides_hooks: []
+provides_middleware: []
+requires_env: []
