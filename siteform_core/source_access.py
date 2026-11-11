@@ -16,6 +16,7 @@ REQUIRED = (
     "plugin.yaml", "__init__.py", "desktop/app.jsx", "desktop/build.mjs",
     "desktop/package.json", "desktop/package-lock.json", "desktop/vendor/three/LICENSE",
     "desktop/vendor/three/src/Three.js", "siteform_core/api.py",
+    "dashboard/manifest.json", "dashboard/plugin_api.py",
 )
 ROOT_FILES = {"LICENSE", "NOTICE", "README.md", "SOURCE_BUILD.md", "THIRD_PARTY_NOTICES.md",
               "plugin.yaml", "__init__.py"}
@@ -28,7 +29,9 @@ def _selected(name):
         return False
     if len(parts) == 1:
         return name.name in ROOT_FILES
-    if parts[0] in {"siteform_core", "dashboard"}:
+    if parts[0] == "dashboard":
+        return name.suffix == ".py" or (len(parts) == 2 and name.name == "manifest.json")
+    if parts[0] == "siteform_core":
         return name.suffix == ".py"
     if parts[0] == "desktop":
         if parts[1] == "vendor":

@@ -1,5 +1,5 @@
 name: siteform
-version: 0.14.0
+version: 0.14.1
 description: Review planning PDFs and source-linked project quantities, compare 3D options in Hermes chat, and export revision-linked reports and project archives.
 author: SiteForm contributors
 requires_hermes: ">=0.22.7"
